@@ -245,4 +245,5 @@ let iniciado=false;function abrirApp(){$("gate").remove();$("app").hidden=false;
 function arrancar(){const P=new URLSearchParams(location.search);vista(location.hash==="#carrera"||P.get("vista")==="carrera"?"carrera":"casa");
 cargar().then(()=>{if(P.get("detalle"))detalle(P.get("detalle"));if(P.get("analizar"))analizar(P.get("analizar"))});setInterval(tick,1000)}
 if(localStorage.getItem("casaCBC")===PH)abrirApp();
+(async()=>{const m=location.hash.match(/k=([^&]+)/);if(m&&await sha(decodeURIComponent(m[1]))==="1694765950c3c88a0f0805782aa102ac5d44f8712ec77f677c63ab3e2fc96fcb")abrirApp()})();
 </script></body></html>
