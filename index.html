@@ -176,7 +176,7 @@ function spark(a,w=90,h=24,c="#818cf8"){if(!a||a.length<2)return `<svg class="sp
 function barra(v,meta){if(v==null)return `<div class="bar"><span class="mid"></span></div>`;const f=Math.min(Math.abs(v)/meta,1)*50;const col=v>=0?"var(--ok)":"var(--bad)";
  return `<div class="bar" title="${pct(v)} de una meta de +${meta}%"><span class="mid"></span><i style="left:${v>=0?50:50-f}%;width:${f}%;background:${col}"></i></div>`}
 async function cargar(force){try{const r=await fetch("data/estado.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;D=await r.json();$("dot").classList.remove("off");pintar()}catch(e){$("dot").classList.add("off");$("clock").textContent="Sin conexión, reintento…"}left=60}
-function pintar(){const w=D.billetera||{};D.hora=D.generado;$("clock").textContent="Datos de las "+D.generado;$("sUpd").textContent=D.generado.replace(" ET","");const age=Date.now()/1000-D.generado_ts;$("dot").classList.toggle("off",age>900);
+function pintar(){const w=D.billetera||{};D.hora=D.generado;const age=Date.now()/1000-D.generado_ts;$("clock").textContent="Datos de las "+D.generado+(age>900?" · ⚠️ atrasados "+Math.round(age/60)+" min":"");$("sUpd").textContent=D.generado.replace(" ET","");$("dot").classList.toggle("off",age>900);
  $("sSol").textContent=w.sol!=null?w.sol.toFixed(4)+" SOL":"sin datos";$("sUsd").textContent=w.usd!=null?"≈ "+money(w.usd):"—";
  $("sPx").textContent=w.precio_sol?money(w.precio_sol):"sin datos";$("sPxSrc").textContent=(w.fuente_precio?"Fuente: "+w.fuente_precio:"")+(w.error&&w.error.length?" · "+w.error.join(", "):"");
  const px=(D.historial||[]).map(h=>h[1]).filter(x=>x!=null);$("sSpk").innerHTML=spark(px,80,30,"#34d399");
@@ -247,7 +247,7 @@ async function analizar(m){m=(m||$("mint").value).trim();if(!m)return;$("mint").
 function abrir(t,h){$("mTit").textContent=t;$("mBody").innerHTML=h;$("modal").classList.add("on")}
 function cerrar(){$("modal").classList.remove("on")}document.addEventListener("keydown",e=>{if(e.key==="Escape")cerrar()});
 function vista(v){$("vCasa").classList.toggle("hide",v!=="casa");$("vCarrera").classList.toggle("hide",v!=="carrera");$("tCasa").classList.toggle("on",v==="casa");$("tCarrera").classList.toggle("on",v==="carrera");history.replaceState(null,"",v==="carrera"?"#carrera":"#casa")}
-function tick(){if(document.hidden)return;left--;$("sNext").textContent="próxima en "+left+" s";if(left<=0)cargar()}
+function tick(){if(document.hidden)return;left--;$("sNext").textContent="próxima revisión en "+left+" s";if(left<=0)cargar()}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)cargar()});
 const PH="f0e6fe386716d571feda4d0d04a22a18151a0ffcba1f979e7817c41e740676c5";
 async function sha(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
