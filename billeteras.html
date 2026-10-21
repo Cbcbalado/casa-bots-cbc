@@ -49,7 +49,7 @@ function render(){
  $("kpis").innerHTML=[["Valor total",usd(T.valor_usd),""],["Capital neto aportado",usd(T.neto_invertido_usd),""],
   ["Ganancia / pérdida total",usd(T.pnl_usd,1),cl(T.pnl_usd)],["Resultado de operaciones cerradas",usd(T.pnl_realizado_usd,1),cl(T.pnl_realizado_usd)]]
   .map(k=>`<div class="kpi"><div class="l">${k[0]}</div><div class="v ${k[2]}">${k[1]}</div></div>`).join("");
- $("nota").textContent="Capital neto = saldo al empezar el seguimiento + depósitos − retiros (las transferencias entre tus billeteras se cancelan en el total). Todo valorado al precio actual de SOL, así la ganancia refleja solo el trading."+(D.incompleto?` ⚠ ${D.incompleto} transacción(es) aún sin leer.`:"");
+ $("nota").textContent="Capital neto aportado = depósitos reales del usuario − retiros ($210.58 hasta el 20 oct + $122.85 el 21 oct). Resultado total = valor actual de las 4 billeteras − capital aportado. Los montos por billetera son estimaciones de su ventana de seguimiento."+(D.incompleto?` ⚠ ${D.incompleto} transacción(es) aún sin leer.`:"");
  $("wals").innerHTML=D.billeteras.map(w=>{
   const act=w.activos.filter(a=>!a.polvo).map(a=>`<div class="row"><span>${E(a.activo)}</span><span>${num(a.cantidad)} · <b>${usd(a.usd)}</b></span></div>`).join("");
   const polvo=w.activos.filter(a=>a.polvo).length;
