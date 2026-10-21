@@ -13,6 +13,7 @@ h2{margin:0 0 12px;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.kpi .v{font-size:28px;font-weight:800}.kpi .l{color:var(--mut);font-size:12px}
 .wals{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 @media(max-width:1000px){.wals{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+.av{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--a);flex:none;background:#151b2b}.wt{display:flex;gap:12px;align-items:center}
 .wh{display:flex;justify-content:space-between;align-items:flex-start}.wn{font-size:18px;font-weight:800}.sub{color:var(--mut);font-size:12px}
 .big{font-size:30px;font-weight:800;margin:10px 0 2px}.up{color:var(--g)}.dn{color:var(--r)}
 .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
@@ -54,7 +55,7 @@ function render(){
   const polvo=w.activos.filter(a=>a.polvo).length;
   let pos=w.abiertas.length?w.abiertas.map(p=>`<div class="row"><span>${E(p.token)}</span><span class="${cl(p.cambio)}">${p.cambio==null?"—":(p.cambio>0?"+":"")+p.cambio+"%"}</span></div>`).join(""):"";
   if(w.perps)pos+=w.perps.map(p=>`<div class="row"><span>${E(p.lado)} ${E(p.mercado)} · $${num(p.tamano_usd,2)}</span><span class="${cl(+p.pnl_usd)}">${usd(+p.pnl_usd,1)}</span></div>`).join("");
-  return `<div class="c"><div class="wh"><div><div class="wn">${E(w.nombre)}</div><div class="sub">${E(w.rol)}</div></div><span class="tag">${E(w.dir)}</span></div>
+  return `<div class="c"><div class="wh"><div class="wt"><img class="av" src="img/${E(w.id)}.jpg" alt="" onerror="this.remove()"><div><div class="wn">${E(w.nombre)}</div><div class="sub">${E(w.rol)}</div></div></div><span class="tag">${E(w.dir)}</span></div>
   <div class="big">${usd(w.valor_usd)}</div>
   <div class="sub">Aportado ${usd(w.neto_invertido_usd)} · <b class="${cl(w.pnl_usd)}">${usd(w.pnl_usd,1)}</b> ${w.neto_invertido_usd>0?`(${(w.pnl_usd/w.neto_invertido_usd*100).toFixed(1)}%)`:""} · ${E(w.ventana)}</div>
   <div class="sub" style="margin:4px 0 12px">Operaciones cerradas: ${w.cerradas} (${w.ganadas} ganadas) · resultado ${usd(w.pnl_realizado_usd,1)}</div>
