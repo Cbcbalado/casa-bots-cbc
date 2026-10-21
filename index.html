@@ -23,13 +23,13 @@ footer{color:var(--mut);text-align:center;font-size:11px;padding:20px}
 </style></head><body>
 <header><div class="logo">CBC <b>Trading</b> · Panel en vivo</div><a href="billeteras.html" style="margin-left:auto;margin-right:18px;color:#9db4ff;text-decoration:none;font-weight:600;font-size:13px;border:1px solid #2a3550;padding:6px 12px;border-radius:9px">💼 Billeteras</a><div class="live"><span class="dot"></span><span id="upd">conectando…</span></div></header>
 <main>
-<div class="c s3"><h2>Saldo de la billetera</h2><div class="k" id="usd">—</div><div class="sub" id="sol">—</div></div>
+<div class="c s3"><h2>Saldo total · 4 billeteras</h2><div class="k" id="usd">—</div><div class="sub" id="sol">—</div></div>
 <div class="c s3"><h2>P&amp;L realizado</h2><div class="k" id="pnl">—</div><div class="sub" id="pnls">—</div></div>
 <div class="c s3"><h2>Tasa de acierto (trades)</h2><div class="k" id="wr">—</div><div class="sub" id="wrs">—</div></div>
 <div class="c s3"><h2>Acierto de señales (Analista)</h2><div class="k" id="ts">—</div><div class="sub" id="tss">—</div></div>
-<div class="c s8"><h2>Valor de la billetera (USD) <span id="hrng"></span></h2><canvas id="ch1"></canvas></div>
+<div class="c s8"><h2>Valor total de las billeteras (USD) <span id="hrng"></span></h2><canvas id="ch1"></canvas></div>
 <div class="c s4"><h2>El equipo</h2><div id="bots"></div></div>
-<div class="c s12"><h2>Posiciones abiertas <span class="sub">precio en vivo · DexScreener</span></h2><div id="pos"></div></div>
+<div class="c s12"><h2>Posiciones abiertas <span class="sub">sniper, spot y perps · datos reales</span></h2><div id="pos"></div></div>
 <div class="c s6"><h2>P&amp;L acumulado por operación</h2><canvas id="ch2"></canvas></div>
 <div class="c s6"><h2>Operaciones recientes</h2><div id="ops" class="feed"></div></div>
 <div class="c s6"><h2>Alertas del monitor</h2><div id="alr" class="feed"></div></div>
@@ -38,7 +38,7 @@ footer{color:var(--mut);text-align:center;font-size:11px;padding:20px}
 <div class="c s4"><h2>On-chain y vetos</h2><div id="onc" class="feed"></div></div>
 <div class="c s4"><h2>Noticias de impacto</h2><div id="nws" class="feed"></div></div>
 </main>
-<footer>Panel público de solo lectura · Billetera 7rtE…DxhM · Datos: Solana RPC pública, DexScreener, CoinGecko y registros internos saneados · No es consejo financiero</footer>
+<footer>Panel público de solo lectura · 4 billeteras: Principal, Sniper, Spot y Perps · Saldos leídos en vivo de la cadena de Solana en cada publicación · Precios: Jupiter y DexScreener · No es consejo financiero</footer>
 <script>
 const $=i=>document.getElementById(i),E=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let D=null,live={},px=null;
@@ -55,15 +55,15 @@ function chart(id,pts,col){const c=$(id),r=devicePixelRatio||1,w=c.clientWidth,h
  x.fillStyle="#7d8aa3";[t0,t1].forEach((t,i)=>{const s=new Date(t*1000).toLocaleString("es",{timeZone:"America/New_York",day:"2-digit",hour:"numeric",minute:"2-digit"});x.fillText(s,i?w-150:8,h-5)})}
 function feed(id,arr,f){$(id).innerHTML=arr&&arr.length?arr.map(f).join(""):'<div class="empty">Sin registros por ahora</div>'}
 const TC={SNIPER_CANDIDATO:"#7c5cff",CANDIDATO_A:"#19d38a",STOP:"#ff5470",OBJETIVO:"#19d38a",PROTEGER_GANANCIA:"#ffc94d"};
-function render(){if(!D)return;const b=D.billetera,sol=live.sol??b.sol,p=px??b.precio_sol;
- $("usd").textContent=usd(sol*p);$("sol").textContent=`${(+sol).toFixed(4)} SOL · SOL ${usd(p)} (+ tokens/USDC no incluidos)`;
- const s=D.stats;$("pnl").innerHTML=`<span class="${sg(s.pnl_total_usd)}">${usd(s.pnl_total_usd)}</span>`;$("pnls").textContent=`${s.cerradas} operaciones cerradas · mejor: ${s.mejor||"—"}`;
+function render(){if(!D)return;const b=D.billetera;
+ $("usd").textContent=usd(b.usd);$("sol").textContent=(b.detalle||[]).map(x=>`${x.nombre} ${usd(x.usd)}`).join(" · ")+` · SOL ${usd(b.precio_sol)}`;
+ const s=D.stats;$("pnl").innerHTML=`<span class="${sg(s.pnl_total_usd)}">${usd(s.pnl_total_usd)}</span>`;$("pnls").textContent=`Hoy: ${s.hoy_cerradas??0} cerradas (${s.hoy_ganadas??0} ganadas) · ${usd(s.hoy_pnl_usd)} · total ${s.cerradas} on-chain`;
  $("wr").textContent=s.win_rate==null?"—":s.win_rate+"%";$("wrs").textContent=`${s.ganadas} ganadas / ${s.cerradas-s.ganadas} perdidas`;
  const t=D.tasa_senales;$("ts").textContent=t?t.pct+"%":"—";$("tss").textContent=t?`${t.aciertos} aciertos / ${t.fallos} fallos (señales cerradas)`:"sin señales cerradas";
  chart("ch1",(D.historial||[]).map(h=>[h[0],h[2]]),"#7c5cff");chart("ch2",[[D.curva[0]?.[0]-1,0],...D.curva],s.pnl_total_usd>=0?"#19d38a":"#ff5470");
  $("bots").innerHTML=D.bots.map((x,i)=>`<div class="bot"><div class="av" style="background:${i?"#19d38a22;color:#19d38a":"#7c5cff22;color:#a993ff"}">${i?"AN":"GB"}</div><div><b>${E(x.nombre)}</b> <span class="tag">${i?"sin billetera":"opera"}</span><div class="sub">${E(x.rol)}</div><div class="sub">${E(x.tareas)}</div></div></div>`).join("");
- const P=D.posiciones||[];$("pos").innerHTML=P.length?`<table><tr><th>Token</th><th>Entrada</th><th>Actual</th><th>Cambio</th><th>Stop</th><th>Objetivo</th></tr>${P.map(q=>{const c=live.px?.[q.mint],ch=c&&q.entry?(c/q.entry-1)*100:null;return`<tr><td><b>${E(q.symbol)}</b> <a href="https://dexscreener.com/solana/${E(q.mint)}" target="_blank">↗</a></td><td>${q.entry??"—"}</td><td>${c??"…"}</td><td class="${sg(ch)}">${ch==null?"—":ch.toFixed(1)+"%"}</td><td>${q.stop??"—"}</td><td>${q.target??"—"}</td></tr>`}).join("")}</table>`:'<div class="empty">Sin posiciones abiertas ahora mismo · el monitor vigila el mercado cada 60 s</div>';
- feed("ops",D.operaciones,o=>`<div class="it"><div class="h">${E(o.cierre||o.apertura)} ${o.abierta?'<span class="pill" style="background:#ffc94d22;color:#ffc94d">ABIERTA</span>':""}</div><b>${E(o.token)}</b> · <span class="${sg(o.pnl_usd)}">${usd(o.pnl_usd)}</span>${o.pnl_sol!=null?` <span class="sub">(${o.pnl_sol>0?"+":""}${(+o.pnl_sol).toFixed(5)} SOL)</span>`:""}</div>`);
+ const P=D.posiciones||[];$("pos").innerHTML=P.length?`<table><tr><th>Token</th><th>Billetera</th><th>Entrada</th><th>Actual</th><th>Cambio</th><th>Stop</th><th>Objetivo</th></tr>${P.map(q=>{const c=live.px?.[q.mint]??q.actual,ch=q.mint&&c&&q.entry?(c/q.entry-1)*100:q.cambio;return`<tr><td><b>${E(q.symbol)}</b> ${q.mint?`<a href="https://dexscreener.com/solana/${E(q.mint)}" target="_blank">↗</a>`:""}${q.pnl_usd!=null?` <span class="${sg(q.pnl_usd)}">${usd(q.pnl_usd)}</span>`:""}</td><td>${E(q.billetera||"")}</td><td>${q.entry??"—"}</td><td>${c??"…"}</td><td class="${sg(ch)}">${ch==null?"—":ch.toFixed(1)+"%"}</td><td>${q.stop??"—"}</td><td>${q.target??"—"}</td></tr>`}).join("")}</table>`:'<div class="empty">Sin posiciones abiertas ahora mismo · el monitor vigila el mercado cada 60 s</div>';
+ feed("ops",D.operaciones,o=>`<div class="it"><div class="h">${E(o.cierre||o.apertura)} ${o.abierta?'<span class="pill" style="background:#ffc94d22;color:#ffc94d">ABIERTA</span>':""}</div><b>${E(o.token)}</b> <span class="sub">${E(o.billetera||"")}</span> · <span class="${sg(o.pnl_usd)}">${usd(o.pnl_usd)}</span>${o.pnl_sol!=null?` <span class="sub">(${o.pnl_sol>0?"+":""}${(+o.pnl_sol).toFixed(5)} SOL)</span>`:""}</div>`);
  feed("alr",D.alertas,a=>`<div class="it"><div class="h">${E(a.hora)}</div><span class="pill" style="background:${(TC[a.tipo]||"#7d8aa3")}22;color:${TC[a.tipo]||"#7d8aa3"}">${E(a.tipo.replace("_"," "))}</span><b>${E(a.token.split(" ")[0])}</b> <span class="sub">${E(a.det)}</span>${a.nota?`<div class="sub" style="margin-top:4px">↳ ${E(a.nota)}</div>`:""}</div>`);
  feed("dec",D.decisiones,x=>`<div class="it">${E(x)}</div>`);
  feed("sen",[...(D.resultados||[]).map(r=>"📊 "+r),...D.senales],x=>`<div class="it">${E(x)}</div>`);
@@ -73,5 +73,5 @@ function render(){if(!D)return;const b=D.billetera,sol=live.sol??b.sol,p=px??b.p
 async function load(){try{D=await (await fetch("data/estado.json?t="+Date.now(),{cache:"no-store"})).json();render();prices()}catch(e){$("upd").textContent="reintentando…"}}
 async function wallet(){try{const j=await (await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd")).json();px=j.solana.usd}catch(e){}render()}
 async function prices(){const m=(D?.posiciones||[]).map(q=>q.mint).filter(Boolean);if(!m.length)return;try{const j=await (await fetch("https://api.dexscreener.com/latest/dex/tokens/"+m.join(","))).json();live.px={};(j.pairs||[]).forEach(p=>{const k=p.baseToken.address;if(!live.px[k])live.px[k]=+p.priceUsd});render()}catch(e){}}
-load();wallet();setInterval(load,20000);setInterval(wallet,30000);addEventListener("resize",render);
+load();setInterval(load,20000);addEventListener("resize",render);
 </script></body></html>

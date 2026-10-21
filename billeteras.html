@@ -32,7 +32,7 @@ footer{color:var(--mut);text-align:center;font-size:11px;padding:20px}
 <nav><a href="./">Panel</a><a class="on" href="billeteras.html">Billeteras</a></nav>
 <div class="live"><span class="dot"></span><span id="gen">cargando…</span></div></header>
 <main>
-<section class="c"><h2>Resumen total · 3 billeteras</h2><div class="kpis" id="kpis"></div><div class="sub" id="nota" style="margin-top:10px"></div></section>
+<section class="c"><h2>Resumen total · <span id="nw">4</span> billeteras</h2><div class="kpis" id="kpis"></div><div class="sub" id="nota" style="margin-top:10px"></div></section>
 <section class="wals" id="wals"></section>
 <section class="c"><h2>Estado de cuenta</h2>
 <div class="tabs" id="tabs"></div><div class="scroll" id="est"></div></section>
@@ -45,7 +45,7 @@ const cl=v=>v>0?"up":v<0?"dn":"";const num=(v,d=4)=>v==null?"—":(+v).toLocaleS
 let D=null,sel=null,todo=false;
 function pct(a,b){return b?((a/b-1)*100).toFixed(1)+"%":""}
 function render(){
- const T=D.total;$("gen").textContent="Actualizado "+D.generado+" · SOL $"+D.precio_sol;
+ const T=D.total;$("nw").textContent=D.billeteras.length;$("gen").textContent="Actualizado "+D.generado+" · SOL $"+D.precio_sol;
  $("kpis").innerHTML=[["Valor total",usd(T.valor_usd),""],["Capital neto aportado",usd(T.neto_invertido_usd),""],
   ["Ganancia / pérdida total",usd(T.pnl_usd,1),cl(T.pnl_usd)],["Resultado de operaciones cerradas",usd(T.pnl_realizado_usd,1),cl(T.pnl_realizado_usd)]]
   .map(k=>`<div class="kpi"><div class="l">${k[0]}</div><div class="v ${k[2]}">${k[1]}</div></div>`).join("");
@@ -54,8 +54,8 @@ function render(){
   const act=w.activos.filter(a=>!a.polvo).map(a=>`<div class="row"><span>${E(a.activo)}</span><span>${num(a.cantidad)} · <b>${usd(a.usd)}</b></span></div>`).join("");
   const polvo=w.activos.filter(a=>a.polvo).length;
   let pos=w.abiertas.length?w.abiertas.map(p=>`<div class="row"><span>${E(p.token)}</span><span class="${cl(p.cambio)}">${p.cambio==null?"—":(p.cambio>0?"+":"")+p.cambio+"%"}</span></div>`).join(""):"";
-  if(w.perps)pos+=w.perps.map(p=>`<div class="row"><span>${E(p.lado)} ${E(p.mercado)} · $${num(p.tamano_usd,2)}</span><span class="${cl(+p.pnl_usd)}">${usd(+p.pnl_usd,1)}</span></div>`).join("");
-  return `<div class="c"><div class="wh"><div class="wt"><img class="av" src="img/${E(w.id)}.jpg" alt="" onerror="this.remove()"><div><div class="wn">${E(w.nombre)}</div><div class="sub">${E(w.rol)}</div></div></div><span class="tag">${E(w.dir)}</span></div>
+  if(w.perps)pos+=w.perps.map(p=>`<div class="row"><span>${E((p.lado||"").toUpperCase())} ${E(p.mercado)} ${num(p.apalancamiento,2)}x · tamaño $${num(p.tamano_usd,2)} · entrada ${num(p.entrada,2)} · liq. ${num(p.liq,2)}</span><span class="${cl(p.pnl_usd)}">${usd(p.pnl_usd,1)}</span></div>`).join("");
+  return `<div class="c"><div class="wh"><div class="wt"><img class="av" src="${E(w.img||("img/"+w.id+".jpg"))}?v=${D.generado_ts}" alt="" onerror="this.remove()"><div><div class="wn">${E(w.nombre)}</div><div class="sub">${E(w.rol)}</div></div></div><span class="tag">${E(w.dir)}</span></div>
   <div class="big">${usd(w.valor_usd)}</div>
   <div class="sub">Aportado ${usd(w.neto_invertido_usd)} · <b class="${cl(w.pnl_usd)}">${usd(w.pnl_usd,1)}</b> ${w.neto_invertido_usd>0?`(${(w.pnl_usd/w.neto_invertido_usd*100).toFixed(1)}%)`:""} · ${E(w.ventana)}</div>
   <div class="sub" style="margin:4px 0 12px">Operaciones cerradas: ${w.cerradas} (${w.ganadas} ganadas) · resultado ${usd(w.pnl_realizado_usd,1)}</div>
